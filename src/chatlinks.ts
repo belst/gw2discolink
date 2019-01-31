@@ -37,20 +37,20 @@ export function decode(buf: Cursor | Buffer | string) {
         buf = new Cursor(buf);
     }
 
-    let ret: any = {}; // any for now
+    const ret: any = {}; // any for now
 
-    const type_id = buf.readInt8();
+    const typeId = buf.readInt8();
 
-    ret.type = type_name(type_id);
+    ret.type = type_name(typeId);
 
-    if (types.item === type_id) {
+    if (types.item === typeId) {
         ret.quantity = buf.readInt8();
     }
 
     ret.id = buf.readInt24LE();
-    
+
     // Special item stuff such as skins and upgrades
-    if (types.item === type_id) {
+    if (types.item === typeId) {
         const flags = new Bitfield(buf.readInt8());
         ret.upgrades = [];
 
@@ -67,7 +67,7 @@ export function decode(buf: Cursor | Buffer | string) {
         if (flags.is_set(itemflags.upgrade2)) {
             ret.upgrades.push(buf.readInt24LE());
         }
-    } else if (types.objective === type_id) {
+    } else if (types.objective === typeId) {
         buf.readInt8();
         ret.id = buf.readInt24LE() + '-' + ret.id;
     }
@@ -75,11 +75,11 @@ export function decode(buf: Cursor | Buffer | string) {
     return ret;
 }
 
-function type_name(type_id: number): string {
+function type_name(typeId: number): string {
     for (const [k, v] of Object.entries(types)) {
-        if (v === type_id) {
+        if (v === typeId) {
             return k;
         }
     }
-    throw new Error(`No Link type with id '${type_id}' found.`);
+    throw new Error(`No Link type with id '${typeId}' found.`);
 }
